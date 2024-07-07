@@ -1,0 +1,160 @@
+import re
+import json
+from dateutil import parser as date_parser
+import spacy
+
+# Load the English language model
+nlp = spacy.load("en_core_web_sm")
+
+def parse_resume(resume_text):
+    # Remove any special formatting
+    resume_text = re.sub(r'\s+', ' ', resume_text)
+    
+    # Process the text with spaCy
+    doc = nlp(resume_text)
+    
+    # Initialize the JSON structure
+    parsed_resume = {
+        "personalInfo": {},
+        "education": [],
+        "experience": [],
+        "skills": {
+            "technical": [],
+            "soft": [],
+            "other": []
+        },
+        "projects": [],
+        "certifications": [],
+        "achievements": [],
+        "languages": [],
+        "extraCurricular": []
+    }
+    
+    # Extract personal information
+    parsed_resume["personalInfo"]["name"] = doc.ents[0].text if doc.ents else ""
+    parsed_resume["personalInfo"]["email"] = re.findall(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', resume_text)
+    parsed_resume["personalInfo"]["phone"] = re.findall(r'\b(?:\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b', resume_text)
+    
+    # Extract education
+    education_keywords = ["education", "university", "college", "school", "institute"]
+    education_section = extract_section(resume_text, education_keywords)
+    if education_section:
+        education_entries = re.split(r'\n(?=\S)', education_section)
+        for entry in education_entries:
+            edu = {}
+            edu["degree"] = re.search(r'(Bachelor|Master|PhD|B\.?S\.?|M\.?S\.?|B\.?A\.?|M\.?A\.?)', entry, re.IGNORECASE)
+            edu["degree"] = edu["degree"].group() if edu["degree"] else ""
+            edu["institution"] = re.search(r'(University|College|Institute|School) of [\w\s]+', entry, re.IGNORECASE)
+            edu["institution"] = edu["institution"].group() if edu["institution"] else ""
+            edu["graduationDate"] = extract_date(entry)
+            gpa_match = re.search(r'GPA[:]?\s*([\d.]+)', entry, re.IGNORECASE)
+            edu["gpa"] = float(gpa_match.group(1)) if gpa_match else None
+            parsed_resume["education"].append(edu)
+    
+    # Extract experience
+    experience_keywords = ["experience", "work", "employment", "job"]
+    experience_section = extract_section(resume_text, experience_keywords)
+    if experience_section:
+        experience_entries = re.split(r'\n(?=\S)', experience_section)
+        for entry in experience_entries:
+            exp = {}
+            exp["title"] = re.search(r'^[\w\s]+', entry)
+            exp["title"] = exp["title"].group().strip() if exp["title"] else ""
+            exp["company"] = re.search(r'at ([\w\s]+)', entry, re.IGNORECASE)
+            exp["company"] = exp["company"].group(1) if exp["company"] else ""
+            exp["startDate"], exp["endDate"] = extract_date_range(entry)
+            exp["description"] = re.findall(r'•\s*(.*)', entry)
+            parsed_resume["experience"].append(exp)
+    
+    # Extract skills
+    skills_keywords = ["skills", "technologies", "tools"]
+    skills_section = extract_section(resume_text, skills_keywords)
+    if skills_section:
+        all_skills = re.findall(r'\b\w+(?:\s+\w+)*\b', skills_section)
+        for skill in all_skills:
+            if skill.lower() in ["communication", "leadership", "teamwork", "problem-solving"]:
+                parsed_resume["skills"]["soft"].append(skill)
+            elif skill.lower() in ["python", "java", "c++", "javascript", "sql"]:
+                parsed_resume["skills"]["technical"].append(skill)
+            else:
+                parsed_resume["skills"]["other"].append(skill)
+    
+    # Extract projects (simplified)
+    projects_keywords = ["projects", "personal projects"]
+    projects_section = extract_section(resume_text, projects_keywords)
+    if projects_section:
+        project_entries = re.split(r'\n(?=\S)', projects_section)
+        for entry in project_entries:
+            project = {}
+            project["title"] = re.search(r'^[\w\s]+', entry)
+            project["title"] = project["title"].group().strip() if project["title"] else ""
+            project["description"] = re.findall(r'•\s*(.*)', entry)
+            parsed_resume["projects"].append(project)
+    
+    # Extract certifications (simplified)
+    cert_keywords = ["certifications", "certificates"]
+    cert_section = extract_section(resume_text, cert_keywords)
+    if cert_section:
+        parsed_resume["certifications"] = re.findall(r'•\s*(.*)', cert_section)
+    
+    # Extract achievements (simplified)
+    achieve_keywords = ["achievements", "awards"]
+    achieve_section = extract_section(resume_text, achieve_keywords)
+    if achieve_section:
+        parsed_resume["achievements"] = re.findall(r'•\s*(.*)', achieve_section)
+    
+    # Extract languages (simplified)
+    lang_keywords = ["languages"]
+    lang_section = extract_section(resume_text, lang_keywords)
+    if lang_section:
+        lang_entries = re.findall(r'(\w+)\s*[:-]\s*(.*)', lang_section)
+        for lang, proficiency in lang_entries:
+            parsed_resume["languages"].append({"language": lang, "proficiency": proficiency.strip()})
+    
+    # Extract extra-curricular activities (simplified)
+    extra_keywords = ["extra-curricular", "activities"]
+    extra_section = extract_section(resume_text, extra_keywords)
+    if extra_section:
+        extra_entries = re.split(r'\n(?=\S)', extra_section)
+        for entry in extra_entries:
+            activity = {}
+            activity["title"] = re.search(r'^[\w\s]+', entry)
+            activity["title"] = activity["title"].group().strip() if activity["title"] else ""
+            activity["description"] = re.findall(r'•\s*(.*)', entry)
+            parsed_resume["extraCurricular"].append(activity)
+    
+    return json.dumps(parsed_resume, indent=2)
+
+def extract_section(text, keywords):
+    for keyword in keywords:
+        pattern = rf'{keyword}.*?(?=\n\s*\n|\Z)'
+        match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+        if match:
+            return match.group()
+    return ""
+
+def extract_date(text):
+    date_match = re.search(r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\b', text)
+    if date_match:
+        return date_parser.parse(date_match.group()).strftime('%Y-%m-%d')
+    return None
+
+def extract_date_range(text):
+    date_range = re.search(r'((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4})\s*[-–]\s*((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}|Present)', text)
+    if date_range:
+        start_date = date_parser.parse(date_range.group(1)).strftime('%Y-%m-%d')
+        end_date = date_parser.parse(date_range.group(2)).strftime('%Y-%m-%d') if date_range.group(2).lower() != 'present' else None
+        return start_date, end_date
+    return None, None
+
+# Example usage
+resume_text = """
+Your resume text here...
+"""
+
+parsed_json = parse_resume(resume_text)
+print(parsed_json)
+
+# Optionally, save to a file
+with open('parsed_resume.json', 'w') as f:
+    f.write(parsed_json)

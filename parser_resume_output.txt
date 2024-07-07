@@ -1,0 +1,121 @@
+{
+  "personalInfo": {
+    "name": "PUSHKAR TUSE",
+    "phone": "+91 7030776171",
+    "email": "pr5821@srmist.edu.in",
+    "location": "Chennai, India",
+    "linkedin": "linkedin.com/in/pushkar-tuse/",
+    "github": "github.com/PushkarTuse"
+  },
+  "education": [
+    {
+      "degree": "Bachelor of Technology in Computer Science and Engineering",
+      "institution": "SRM Institute of Science and Technology",
+      "graduationDate": "2025",
+      "gpa": 8.9,
+      "notes": "GPA is out of 10 and up to 4th semester"
+    },
+    {
+      "degree": "Higher Secondary Certificate",
+      "institution": "Shubham Raje Junior College",
+      "graduationDate": "2021",
+      "gpa": null,
+      "notes": "Percentage: 99.16% (MSBSHSE)"
+    }
+  ],
+  "experience": [
+    {
+      "title": "Virtual Reality Developer Intern",
+      "company": "Mitacs Globalink Research Internship",
+      "startDate": "2024-05-21",
+      "endDate": null,
+      "description": [
+        "Project: Building an immersive VR experience for Trinity Western University",
+        "Interactive Campus in VR: Develop and optimize 3D models of university buildings for a virtual tour. Integrate VR functionalities for navigation and user interaction within the campus environment.",
+        "Real-Time Virtual Engagement: Implement real-time avatar interactions within the VR application. This includes enabling interaction with objects and other users for events and classes.",
+        "Research and Development: Collaborate with Dr. Andrew Park to author a research paper on the usability of VR applications in education."
+      ]
+    }
+  ],
+  "skills": {
+    "technical": [
+      "PowerBI",
+      "Tableu",
+      "Unity3D",
+      "C++",
+      "Rust",
+      "Python",
+      "3D Modelling",
+      "Swift",
+      "SQL",
+      "CSS",
+      "Javascript"
+    ],
+    "soft": [
+      "Communication",
+      "Leadership",
+      "Teamwork",
+      "Adaptability",
+      "Flexibility"
+    ],
+    "other": [
+      "Research",
+      "Innovation",
+      "Networking",
+      "Presentation"
+    ]
+  },
+  "projects": [
+    {
+      "title": "Outdoor Augmented Reality Navigation application",
+      "description": [
+        "Employed Unity and Google Earth API for outdoor navigation system development",
+        "Sample survey of 500 students reported with 100+ queries being saved and shared"
+      ]
+    }
+  ],
+  "certifications": [
+    "AWS Academy Machine Learning Foundations",
+    "AWS Academy Cloud Foundations",
+    "Cisco: Introduction to Packet Tracer",
+    "Coincent Web Development Course",
+    "Cisco: Data Analytics Essentials",
+    "Udemy: Norwegian Course A1 Part 1"
+  ],
+  "achievements": [
+    "Finalist: Srm Research Day 2023 Computing Technology Department",
+    "Winner: SRM Hackathon 7.0",
+    "Runner Up: Hacksustain (National Level Hackathon)"
+  ],
+  "languages": [
+    {
+      "language": "English",
+      "proficiency": "Advanced"
+    },
+    {
+      "language": "Hindi",
+      "proficiency": "Advanced"
+    },
+    {
+      "language": "Marathi",
+      "proficiency": "Advanced"
+    },
+    {
+      "language": "Norwegian",
+      "proficiency": "Basic"
+    },
+    {
+      "language": "Tamil",
+      "proficiency": "Basic"
+    }
+  ],
+  "extraCurricular": [
+    {
+      "title": "VICE PRESIDENT",
+      "organization": "Data Science Community SRM",
+      "description": [
+        "Led SRM's top technical club, driving data science projects and promoting analytics and machine learning through workshops and events"
+      ]
+    }
+  ]
+}
